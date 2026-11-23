@@ -1,0 +1,13 @@
+# Runs on the VPS. The GPU segmentation worker is rented separately and added later.
+services:
+  api:
+    build: ./backend
+    ports: ["8000:8000"]
+    environment:
+      - SCANFORGE_DATA=/data
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    volumes:
+      - scanforge-data:/data
+    restart: unless-stopped
+volumes:
+  scanforge-data:

@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ScanForge · scan to BIM demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0E1014; --panel:#161920; --line:#262B34; --text:#E6E8EB; --muted:#9BA3AF; --teal:#3CCFBE; --amber:#F2B84B; --violet:#9AA8FF; --blue:#6FB6FF; --coral:#FF8A65; --red:#FF6B57; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; }
+  header { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 24px; border-bottom:1px solid var(--line); background:#12151B; flex-wrap:wrap; }
+  .brand { display:flex; align-items:center; gap:12px; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:18px; }
+  .brand small { font-family:Inter,sans-serif; font-weight:400; color:var(--muted); font-size:14px; }
+  header a { color:var(--muted); font-size:14px; text-decoration:none; } header a:hover { color:var(--text); }
+  main { display:flex; flex-wrap:wrap; gap:20px; padding:20px 24px 28px; }
+  .side { flex:1 1 320px; max-width:400px; display:flex; flex-direction:column; gap:16px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; }
+  h2 { margin:0 0 12px; font-size:15px; font-weight:600; }
+  p { margin:0; color:var(--muted); font-size:14px; line-height:1.5; }
+  button, .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 16px; border-radius:8px; font:inherit; font-size:14px; cursor:pointer; text-decoration:none; }
+  .primary { background:var(--teal); color:#062B27; border:0; font-weight:600; }
+  .ghost { background:#12151B; color:var(--text); border:1px solid #2C323C; }
+  button:disabled { opacity:.5; cursor:default; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .drop { border:1.5px dashed #343B47; border-radius:10px; padding:18px; text-align:center; background:#12151B; display:flex; flex-direction:column; gap:10px; align-items:center; }
+  .drop.over { border-color:var(--teal); }
+  .fmt { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); }
+  .bar { height:4px; border-radius:2px; background:var(--line); overflow:hidden; }
+  .bar > div { height:4px; width:0; background:var(--teal); transition:width .2s; }
+  .status { display:flex; align-items:center; gap:10px; font-size:14px; }
+  .dot { width:10px; height:10px; border-radius:50%; background:#3A414D; flex:none; }
+  .dot.busy { background:var(--amber); animation:pulse 1s infinite; } .dot.ok { background:var(--teal); } .dot.bad { background:var(--red); }
+  @keyframes pulse { 50% { opacity:.3 } }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:left; color:var(--muted); font-weight:500; padding:6px 4px; border-bottom:1px solid var(--line); }
+  td { padding:7px 4px; border-bottom:1px solid #1F242C; font-family:'JetBrains Mono',monospace; font-size:12px; }
+  td:first-child { font-family:Inter,sans-serif; font-size:13px; }
+  .viewer { flex:999 1 560px; min-width:0; background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; min-height:560px; }
+  .vbar { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px 14px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .toggles { display:flex; gap:14px; flex-wrap:wrap; font-size:13px; color:#C9CED6; }
+  .toggles label { display:flex; gap:6px; align-items:center; cursor:pointer; } .toggles input { accent-color:var(--teal); }
+  #canvas { flex:1; min-height:480px; position:relative; background:#0B0D11; }
+  #canvas canvas { display:block; }
+  .empty { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:14px; text-align:center; padding:24px; pointer-events:none; }
+  .legend { display:flex; gap:16px; flex-wrap:wrap; padding:10px 14px; border-top:1px solid var(--line); font-size:12px; color:#C9CED6; }
+  .legend span { display:flex; align-items:center; gap:6px; } .sw { width:12px; height:12px; border-radius:3px; }
+  .err { color:#FFB4A8; font-size:13px; }
+  .hidden { display:none !important; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "/static/vendor/three.module.min.js",
+               "three/addons/": "/static/vendor/addons/" } }
+</script>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="2" width="24" height="24" rx="6" fill="none" stroke="#3CCFBE" stroke-width="2"/><path d="M8 19V9l6 4 6-4v10" fill="none" stroke="#3CCFBE" stroke-width="2" stroke-linejoin="round"/></svg>
+    ScanForge <small id="pname">scan to BIM · v0.1 demo</small>
+  </div>
+  <nav class="row"><a href="/docs">API docs</a><a href="https://github.com/siddharthproffessional/scanforge">GitHub</a></nav>
+</header>
+
+<main>
+  <div class="side">
+    <section class="card">
+      <h2>1 · Give it a scan</h2>
+      <div class="row" style="margin-bottom:14px">
+        <button class="primary" id="demoBtn">Try the sample scan</button>
+      </div>
+      <p style="margin-bottom:12px">Sample: a 6 × 4 m room with a 100 mm partition, scanned iPhone-style (metres, Y-up, noisy).</p>
+      <div class="drop" id="drop">
+        <span style="font-size:14px">Or drop your own point cloud</span>
+        <span class="fmt">E57 · LAS · LAZ · PLY</span>
+        <label class="btn ghost" for="file">Choose file</label>
+        <input id="file" type="file" accept=".e57,.las,.laz,.ply" class="hidden">
+      </div>
+      <div class="bar hidden" id="upbar" style="margin-top:12px"><div></div></div>
+    </section>
+
+    <section class="card">
+      <h2>2 · Processing</h2>
+      <div class="status"><span class="dot" id="dot"></span><span id="statusText">Waiting for a scan</span></div>
+      <p class="err hidden" id="err" style="margin-top:8px"></p>
+    </section>
+
+    <section class="card hidden" id="results">
+      <h2>3 · Result</h2>
+      <p id="levels" style="margin-bottom:12px"></p>
+      <table id="summary"><thead><tr><th>Element</th><th>Observed</th><th>Inferred</th></tr></thead><tbody></tbody></table>
+      <h2 style="margin-top:18px">Walls</h2>
+      <table id="walls"><thead><tr><th>Wall</th><th>Length</th><th>Thick.</th><th>Thickness</th></tr></thead><tbody></tbody></table>
+      <div class="row" style="margin-top:16px">
+        <a class="btn primary" id="ifcLink">Download IFC</a>
+        <a class="btn ghost" id="graphLink">Building graph</a>
+      </div>
+    </section>
+  </div>
+
+  <section class="viewer" aria-label="3D viewer">
+    <div class="vbar">
+      <strong style="font-size:14px">Model over scan</strong>
+      <div class="toggles">
+        <label><input type="checkbox" id="tPoints" checked> Scan points</label>
+        <label><input type="checkbox" id="tModel" checked> Model</label>
+        <label><input type="checkbox" id="tCeil"> Ceiling</label>
+      </div>
+    </div>
+    <div id="canvas"><div class="empty" id="empty">Run the sample or upload a scan to see the model here.<br>Drag to orbit · scroll to zoom · right-drag to pan</div></div>
+    <div class="legend">
+      <span><i class="sw" style="background:#3CCFBE"></i>Wall, thickness measured</span>
+      <span><i class="sw" style="background:#F2B84B"></i>Wall, thickness assumed</span>
+      <span><i class="sw" style="background:#5B6472"></i>Floor slab</span>
+      <span><i class="sw" style="background:#9BA3AF"></i>Scan points</span>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const S = 0.001;                                   // mm -> m
+const P = (x, y, z) => new THREE.Vector3(x * S, z * S, -y * S);   // graph Z-up -> three Y-up
+const $ = (id) => document.getElementById(id);
+
+// ---------- viewer
+const host = $('canvas');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+host.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#0B0D11');
+const camera = new THREE.PerspectiveCamera(45, 1, 0.05, 500);
+camera.position.set(8, 8, 10);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight('#ffffff', '#30343c', 1.6));
+const sun = new THREE.DirectionalLight('#ffffff', 1.4); sun.position.set(6, 12, 4); scene.add(sun);
+const grid = new THREE.GridHelper(40, 40, '#2C323C', '#1B1F27'); scene.add(grid);
+const groups = { points: new THREE.Group(), model: new THREE.Group(), ceil: new THREE.Group() };
+Object.values(groups).forEach(g => scene.add(g));
+
+function resize() {
+  const w = host.clientWidth, h = host.clientHeight;
+  renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(host); resize();
+(function loop() { controls.update(); renderer.render(scene, camera); requestAnimationFrame(loop); })();
+
+for (const [id, key] of [['tPoints', 'points'], ['tModel', 'model'], ['tCeil', 'ceil']]) {
+  $(id).addEventListener('change', e => groups[key].visible = e.target.checked);
+}
+groups.ceil.visible = false;
+
+function clear() { Object.values(groups).forEach(g => { g.children.forEach(c => { c.geometry?.dispose(); }); g.clear(); }); }
+
+const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: .8, metalness: 0, ...extra });
+
+function drawGraph(g) {
+  const levelZ = Object.fromEntries(g.levels.map(l => [l.id, l.elevation]));
+  const byId = Object.fromEntries(g.elements.map(e => [e.id, e]));
+  for (const e of g.elements) {
+    const z0 = levelZ[e.level_id] ?? 0;
+    if (e.category === 'wall') {
+      const [[x0, y0], [x1, y1]] = e.baseline;
+      const len = Math.hypot(x1 - x0, y1 - y0);
+      const geo = new THREE.BoxGeometry(len * S, e.height * S, e.thickness * S);
+      const measured = (e.params?.thickness_source ?? 'observed') === 'observed';
+      const m = new THREE.Mesh(geo, mat(measured ? '#3CCFBE' : '#F2B84B', { transparent: true, opacity: .55 }));
+      m.position.copy(P((x0 + x1) / 2, (y0 + y1) / 2, z0 + e.base_offset + e.height / 2));
+      m.rotation.y = Math.atan2(y1 - y0, x1 - x0);
+      const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: measured ? '#9AF0E4' : '#F7D08A' }));
+      m.add(edges);
+      groups.model.add(m);
+    } else if (e.category === 'slab') {
+      const shape = new THREE.Shape(e.boundary.map(([x, y]) => new THREE.Vector2(x * S, y * S)));
+      const geo = new THREE.ExtrudeGeometry(shape, { depth: e.thickness * S, bevelEnabled: false });
+      const ceiling = e.kind === 'ceiling';
+      const m = new THREE.Mesh(geo, mat(ceiling ? '#8A93A3' : '#5B6472', { transparent: ceiling, opacity: ceiling ? .25 : 1 }));
+      m.rotation.x = -Math.PI / 2;
+      m.position.y = (z0 + (e.offset ?? 0) - e.thickness) * S;
+      (ceiling ? groups.ceil : groups.model).add(m);
+    } else if (['door', 'window', 'opening'].includes(e.category)) {
+      const w = byId[e.host_id]; if (!w) continue;
+      const [[x0, y0], [x1, y1]] = w.baseline; const len = Math.hypot(x1 - x0, y1 - y0);
+      const t = e.offset_along / len, cx = x0 + (x1 - x0) * t, cy = y0 + (y1 - y0) * t;
+      const geo = new THREE.BoxGeometry(e.width * S, e.height * S, (w.thickness + 30) * S);
+      const m = new THREE.Mesh(geo, mat(e.category === 'window' ? '#6FB6FF' : '#9AA8FF'));
+      m.position.copy(P(cx, cy, z0 + e.sill + e.height / 2)); m.rotation.y = Math.atan2(y1 - y0, x1 - x0);
+      groups.model.add(m);
+    } else if (e.position) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(.3, .06, .3), mat('#F2B84B'));
+      m.position.copy(P(e.position[0], e.position[1], z0 + e.position[2])); groups.model.add(m);
+    } else if (e.path) {
+      const r = ((e.diameter ?? Math.max(e.width, e.height)) / 2) * S;
+      for (let i = 0; i < e.path.length - 1; i++) {
+        const a = P(e.path[i][0], e.path[i][1], z0 + e.path[i][2]), b = P(e.path[i + 1][0], e.path[i + 1][1], z0 + e.path[i + 1][2]);
+        const geo = new THREE.CylinderGeometry(r, r, a.distanceTo(b), 12);
+        const m = new THREE.Mesh(geo, mat('#FF8A65'));
+        m.position.copy(a.clone().add(b).multiplyScalar(.5));
+        m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), b.clone().sub(a).normalize());
+        groups.model.add(m);
+      }
+    }
+  }
+}
+
+function drawPoints(buf) {
+  const f = new Float32Array(buf), pos = new Float32Array(f.length);
+  for (let i = 0; i < f.length; i += 3) { pos[i] = f[i] * S; pos[i + 1] = f[i + 2] * S; pos[i + 2] = -f[i + 1] * S; }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  groups.points.add(new THREE.Points(geo, new THREE.PointsMaterial({ color: '#9BA3AF', size: .025, transparent: true, opacity: .6 })));
+}
+
+function frame() {
+  const box = new THREE.Box3().setFromObject(groups.model.children.length ? groups.model : groups.points);
+  if (box.isEmpty()) return;
+  const c = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3()).length();
+  controls.target.copy(c);
+  camera.position.copy(c).add(new THREE.Vector3(size * .7, size * .75, size * .95));
+  grid.position.set(c.x, box.min.y - .001, c.z);
+}
+
+// ---------- app
+function setStatus(kind, text, err) {
+  $('dot').className = 'dot ' + (kind || '');
+  $('statusText').textContent = text;
+  $('err').textContent = err || ''; $('err').classList.toggle('hidden', !err);
+}
+
+async function poll(pid) {
+  location.hash = pid;
+  $('demoBtn').disabled = true;
+  for (;;) {
+    const r = await fetch(`/projects/${pid}`);
+    if (!r.ok) { setStatus('bad', 'Project not found'); break; }
+    const p = await r.json();
+    $('pname').textContent = p.name;
+    if (p.state === 'review') { setStatus('ok', `Done in ${p.seconds}s`); await show(pid); break; }
+    if (p.state === 'failed') { setStatus('bad', 'Processing failed', p.error); break; }
+    setStatus('busy', p.state === 'processing' ? 'Cleaning, finding levels, rebuilding walls…' : 'Queued…');
+    await new Promise(r => setTimeout(r, 1000));
+  }
+  $('demoBtn').disabled = false;
+}
+
+async function show(pid) {
+  const [g, pts] = await Promise.all([fetch(`/projects/${pid}/graph`).then(r => r.json()),
+                                      fetch(`/projects/${pid}/points`).then(r => r.arrayBuffer())]);
+  clear(); drawPoints(pts); drawGraph(g); frame();
+  $('empty').classList.add('hidden');
+  $('results').classList.remove('hidden');
+  $('levels').textContent = g.levels.map(l => `${l.name}: floor at ${Math.round(l.elevation)} mm, storey height ${Math.round(l.height)} mm`).join(' · ') || 'No levels found';
+  const counts = {};
+  for (const e of g.elements) { const c = counts[e.category] ??= { observed: 0, inferred: 0 }; c[e.source === 'inferred' ? 'inferred' : 'observed']++; }
+  $('summary').tBodies[0].innerHTML = Object.entries(counts).map(([k, v]) => `<tr><td>${k}</td><td>${v.observed}</td><td>${v.inferred}</td></tr>`).join('');
+  $('walls').tBodies[0].innerHTML = g.elements.filter(e => e.category === 'wall').map(w => {
+    const [[x0, y0], [x1, y1]] = w.baseline;
+    const src = w.params?.thickness_source === 'inferred' ? '<span style="color:#F7D08A">assumed</span>' : '<span style="color:#9AF0E4">measured</span>';
+    return `<tr><td>${w.id}</td><td>${(Math.hypot(x1 - x0, y1 - y0) / 1000).toFixed(2)} m</td><td>${Math.round(w.thickness)}</td><td>${src}</td></tr>`;
+  }).join('');
+  $('ifcLink').href = `/projects/${pid}/export.ifc`;
+  $('graphLink').href = `/projects/${pid}/graph.json`;
+}
+
+$('demoBtn').addEventListener('click', async () => {
+  setStatus('busy', 'Creating sample scan…');
+  const r = await fetch('/demo', { method: 'POST' });
+  if (!r.ok) return setStatus('bad', 'Could not start', await r.text());
+  poll((await r.json()).id);
+});
+
+async function upload(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['e57', 'las', 'laz', 'ply'].includes(ext)) return setStatus('bad', 'Unsupported file', 'Use E57, LAS, LAZ or PLY. Scanner-native files (.fls, .lgs, .rcp) need exporting to E57 first.');
+  const p = await (await fetch('/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: file.name }) })).json();
+  const bar = $('upbar'); bar.classList.remove('hidden');
+  setStatus('busy', `Uploading ${file.name}…`);
+  await new Promise((res, rej) => {
+    const x = new XMLHttpRequest(); const fd = new FormData(); fd.append('file', file);
+    x.upload.onprogress = e => bar.firstElementChild.style.width = (100 * e.loaded / e.total) + '%';
+    x.onload = () => x.status < 300 ? res() : rej(new Error(x.responseText));
+    x.onerror = () => rej(new Error('Upload failed'));
+    x.open('POST', `/projects/${p.id}/files`); x.send(fd);
+  }).then(async () => {
+    await fetch(`/projects/${p.id}/process`, { method: 'POST' });
+    poll(p.id);
+  }).catch(e => setStatus('bad', 'Upload failed', e.message));
+}
+$('file').addEventListener('change', e => e.target.files[0] && upload(e.target.files[0]));
+const drop = $('drop');
+['dragover', 'dragenter'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => e.dataTransfer.files[0] && upload(e.dataTransfer.files[0]));
+
+if (location.hash.length > 1) poll(location.hash.slice(1));
+</script>
+</body>
+</html>

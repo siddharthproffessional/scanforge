@@ -1,0 +1,48 @@
+{
+  "schema_version": "0.1.0",
+  "project": {
+    "id": "prj_sample",
+    "name": "Sample room",
+    "target_lod": 300,
+    "disciplines": ["architecture", "lighting", "electrical", "plumbing"],
+    "sources": [
+      {"id": "src_tls", "kind": "pointcloud", "device": "terrestrial_lidar", "filename": "room_scan.e57", "format": "e57"},
+      {"id": "src_iph", "kind": "pointcloud", "device": "iphone_lidar", "filename": "room_iphone.ply", "format": "ply"},
+      {"id": "src_360", "kind": "video360", "device": "camera_360", "filename": "room_walk.mp4", "format": "mp4"}
+    ]
+  },
+  "levels": [
+    {"id": "L00", "name": "Ground floor", "elevation": 0, "height": 3000}
+  ],
+  "types": [
+    {"id": "T_WALL_200", "category": "wall", "name": "Exterior 200", "revit_family": "Basic Wall", "revit_type": "Generic - 200mm", "ifc_class": "IfcWall", "params": {"thickness": 200}},
+    {"id": "T_DOOR_900", "category": "door", "name": "Single 900x2100", "revit_family": "M_Single-Flush", "revit_type": "0915 x 2134mm", "ifc_class": "IfcDoor"},
+    {"id": "T_WIN_1200", "category": "window", "name": "Fixed 1200x1200", "revit_family": "M_Fixed", "revit_type": "1200 x 1200mm", "ifc_class": "IfcWindow"},
+    {"id": "T_LIGHT_600", "category": "light_fixture", "name": "Panel 600x600", "revit_family": "M_Troffer Light - 2x4 Parabolic", "revit_type": "600x600", "ifc_class": "IfcLightFixture"}
+  ],
+  "systems": [
+    {"id": "SYS_LC1", "discipline": "electrical", "kind": "lighting_circuit", "name": "L1", "source": "inferred", "panel_id": null},
+    {"id": "SYS_DCW", "discipline": "plumbing", "kind": "domestic_cold_water", "name": "DCW", "source": "observed"}
+  ],
+  "elements": [
+    {"id": "W1", "category": "wall", "level_id": "L00", "type_id": "T_WALL_200", "baseline": [[0, 0], [6000, 0]], "thickness": 200, "height": 3000, "exterior": true, "confidence": 0.97, "evidence": {"point_count": 182340}, "joined_to": ["W2", "W4"]},
+    {"id": "W2", "category": "wall", "level_id": "L00", "type_id": "T_WALL_200", "baseline": [[6000, 0], [6000, 4000]], "thickness": 200, "height": 3000, "exterior": true, "confidence": 0.95, "evidence": {"point_count": 120511}, "joined_to": ["W1", "W3"]},
+    {"id": "W3", "category": "wall", "level_id": "L00", "type_id": "T_WALL_200", "baseline": [[6000, 4000], [0, 4000]], "thickness": 200, "height": 3000, "exterior": true, "confidence": 0.96, "evidence": {"point_count": 176002}, "joined_to": ["W2", "W4"]},
+    {"id": "W4", "category": "wall", "level_id": "L00", "type_id": "T_WALL_200", "baseline": [[0, 4000], [0, 0]], "thickness": 200, "height": 3000, "exterior": true, "confidence": 0.94, "evidence": {"point_count": 118930}, "joined_to": ["W3", "W1"]},
+    {"id": "D1", "category": "door", "level_id": "L00", "type_id": "T_DOOR_900", "host_id": "W1", "offset_along": 1200, "width": 900, "height": 2100, "confidence": 0.9, "evidence": {"frame_ids": ["f_0412", "f_0413"]}},
+    {"id": "WN1", "category": "window", "level_id": "L00", "type_id": "T_WIN_1200", "host_id": "W3", "offset_along": 3000, "width": 1200, "height": 1200, "sill": 900, "confidence": 0.88},
+    {"id": "S1", "category": "slab", "kind": "floor", "level_id": "L00", "boundary": [[0, 0], [6000, 0], [6000, 4000], [0, 4000]], "thickness": 150},
+    {"id": "C1", "category": "slab", "kind": "ceiling", "level_id": "L00", "boundary": [[0, 0], [6000, 0], [6000, 4000], [0, 4000]], "thickness": 20, "offset": 2700},
+    {"id": "R1", "category": "room", "level_id": "L00", "boundary": [[100, 100], [5900, 100], [5900, 3900], [100, 3900]], "name": "Office", "number": "001"},
+    {"id": "LF1", "category": "light_fixture", "level_id": "L00", "discipline": "lighting", "type_id": "T_LIGHT_600", "position": [2000, 2000, 2700], "host_id": "C1", "system_ids": ["SYS_LC1"], "evidence": {"frame_ids": ["f_0420"]}},
+    {"id": "LF2", "category": "light_fixture", "level_id": "L00", "discipline": "lighting", "type_id": "T_LIGHT_600", "position": [4000, 2000, 2700], "host_id": "C1", "system_ids": ["SYS_LC1"], "evidence": {"frame_ids": ["f_0421"]}},
+    {"id": "SW1", "category": "switch", "level_id": "L00", "discipline": "electrical", "position": [600, 100, 1200], "host_id": "W1", "system_ids": ["SYS_LC1"]},
+    {"id": "SK1", "category": "socket", "level_id": "L00", "discipline": "electrical", "position": [5900, 1500, 300], "host_id": "W2"},
+    {"id": "CD1", "category": "conduit", "level_id": "L00", "discipline": "electrical", "source": "inferred", "confidence": 0.5, "path": [[600, 100, 1200], [600, 100, 2700], [2000, 2000, 2700], [4000, 2000, 2700]], "diameter": 20, "system_id": "SYS_LC1", "connects_to": ["SW1", "LF1", "LF2"], "evidence": {"notes": "Concealed run inferred from switch to fixtures"}},
+    {"id": "P1", "category": "pipe", "level_id": "L00", "discipline": "plumbing", "path": [[5800, 300, 2500], [5800, 3700, 2500]], "diameter": 25, "system_id": "SYS_DCW", "confidence": 0.82, "evidence": {"point_count": 4210}}
+  ],
+  "questions": [
+    {"id": "Q1", "asked_by": "vision_reviewer", "text": "Is D1 a solid door or a glazed door?", "element_ids": ["D1"], "frame_ids": ["f_0412"], "options": ["solid", "glazed", "not sure"]}
+  ],
+  "history": []
+}

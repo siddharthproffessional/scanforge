@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+data/
+out/
+*.e57
+*.las
+*.laz
+*.ply
+*.mp4
+*.insv
+.env

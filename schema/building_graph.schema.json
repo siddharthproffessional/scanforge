@@ -1,0 +1,1635 @@
+{
+  "$defs": {
+    "Column": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "level_id": {
+          "title": "Level Id",
+          "type": "string"
+        },
+        "discipline": {
+          "$ref": "#/$defs/Discipline",
+          "default": "structure"
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "default": "observed"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "type_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Type Id"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "qa": {
+          "$ref": "#/$defs/QA"
+        },
+        "exports": {
+          "$ref": "#/$defs/ExportRefs"
+        },
+        "params": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Params",
+          "type": "object"
+        },
+        "category": {
+          "const": "column",
+          "default": "column",
+          "title": "Category",
+          "type": "string"
+        },
+        "centre": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Centre",
+          "type": "array"
+        },
+        "profile": {
+          "default": "rect",
+          "enum": [
+            "rect",
+            "round"
+          ],
+          "title": "Profile",
+          "type": "string"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "number"
+        },
+        "depth": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Depth"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "number"
+        },
+        "rotation_deg": {
+          "default": 0.0,
+          "title": "Rotation Deg",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "level_id",
+        "centre",
+        "width",
+        "height"
+      ],
+      "title": "Column",
+      "type": "object"
+    },
+    "Discipline": {
+      "enum": [
+        "architecture",
+        "structure",
+        "electrical",
+        "lighting",
+        "plumbing",
+        "fire",
+        "hvac"
+      ],
+      "title": "Discipline",
+      "type": "string"
+    },
+    "Edit": {
+      "properties": {
+        "at": {
+          "format": "date-time",
+          "title": "At",
+          "type": "string"
+        },
+        "by": {
+          "title": "By",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "element_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Element Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "by",
+        "summary"
+      ],
+      "title": "Edit",
+      "type": "object"
+    },
+    "ElementType": {
+      "description": "Maps a graph type to a Revit family/type and an IFC class.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "revit_family": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revit Family"
+        },
+        "revit_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revit Type"
+        },
+        "ifc_class": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ifc Class"
+        },
+        "params": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "category",
+        "name"
+      ],
+      "title": "ElementType",
+      "type": "object"
+    },
+    "Evidence": {
+      "description": "What the decision was based on, so reviewers and agents can trace it.",
+      "properties": {
+        "point_count": {
+          "default": 0,
+          "title": "Point Count",
+          "type": "integer"
+        },
+        "frame_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Frame Ids",
+          "type": "array"
+        },
+        "drawing_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Drawing Refs",
+          "type": "array"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        }
+      },
+      "title": "Evidence",
+      "type": "object"
+    },
+    "ExportRefs": {
+      "properties": {
+        "ifc_guid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ifc Guid"
+        },
+        "revit_element_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revit Element Id"
+        },
+        "revit_unique_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revit Unique Id"
+        }
+      },
+      "title": "ExportRefs",
+      "type": "object"
+    },
+    "Fixture": {
+      "description": "Point-based MEP item: light, socket, switch, panel, diffuser, sprinkler, equipment.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "level_id": {
+          "title": "Level Id",
+          "type": "string"
+        },
+        "discipline": {
+          "$ref": "#/$defs/Discipline"
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "default": "observed"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "type_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Type Id"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "qa": {
+          "$ref": "#/$defs/QA"
+        },
+        "exports": {
+          "$ref": "#/$defs/ExportRefs"
+        },
+        "params": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Params",
+          "type": "object"
+        },
+        "category": {
+          "enum": [
+            "light_fixture",
+            "socket",
+            "switch",
+            "panel",
+            "air_terminal",
+            "sprinkler",
+            "plumbing_fixture",
+            "equipment"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "position": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Position",
+          "type": "array"
+        },
+        "rotation_deg": {
+          "default": 0.0,
+          "title": "Rotation Deg",
+          "type": "number"
+        },
+        "host_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Host Id"
+        },
+        "system_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "System Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "level_id",
+        "discipline",
+        "category",
+        "position"
+      ],
+      "title": "Fixture",
+      "type": "object"
+    },
+    "Level": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "elevation": {
+          "title": "Elevation",
+          "type": "number"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "elevation",
+        "height"
+      ],
+      "title": "Level",
+      "type": "object"
+    },
+    "Opening": {
+      "description": "Door, window or plain opening, hosted in a wall.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "level_id": {
+          "title": "Level Id",
+          "type": "string"
+        },
+        "discipline": {
+          "$ref": "#/$defs/Discipline",
+          "default": "architecture"
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "default": "observed"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "type_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Type Id"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "qa": {
+          "$ref": "#/$defs/QA"
+        },
+        "exports": {
+          "$ref": "#/$defs/ExportRefs"
+        },
+        "params": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Params",
+          "type": "object"
+        },
+        "category": {
+          "enum": [
+            "door",
+            "window",
+            "opening"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "host_id": {
+          "title": "Host Id",
+          "type": "string"
+        },
+        "offset_along": {
+          "minimum": 0,
+          "title": "Offset Along",
+          "type": "number"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "number"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "number"
+        },
+        "sill": {
+          "default": 0.0,
+          "title": "Sill",
+          "type": "number"
+        },
+        "flip_facing": {
+          "default": false,
+          "title": "Flip Facing",
+          "type": "boolean"
+        },
+        "flip_hand": {
+          "default": false,
+          "title": "Flip Hand",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "level_id",
+        "category",
+        "host_id",
+        "offset_along",
+        "width",
+        "height"
+      ],
+      "title": "Opening",
+      "type": "object"
+    },
+    "Project": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "units": {
+          "const": "mm",
+          "default": "mm",
+          "title": "Units",
+          "type": "string"
+        },
+        "target_lod": {
+          "default": 300,
+          "enum": [
+            200,
+            300,
+            350
+          ],
+          "title": "Target Lod",
+          "type": "integer"
+        },
+        "disciplines": {
+          "items": {
+            "$ref": "#/$defs/Discipline"
+          },
+          "title": "Disciplines",
+          "type": "array"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/SourceFile"
+          },
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "Project",
+      "type": "object"
+    },
+    "QA": {
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/QAStatus",
+          "default": "pending"
+        },
+        "deviation_mean_mm": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deviation Mean Mm"
+        },
+        "deviation_max_mm": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deviation Max Mm"
+        },
+        "tolerance_mm": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tolerance Mm"
+        }
+      },
+      "title": "QA",
+      "type": "object"
+    },
+    "QAStatus": {
+      "enum": [
+        "pending",
+        "passed",
+        "failed",
+        "accepted"
+      ],
+      "title": "QAStatus",
+      "type": "string"
+    },
+    "Question": {
+      "description": "Raised by an agent when it can't decide; answered by a person in review.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "asked_by": {
+          "title": "Asked By",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "element_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Element Ids",
+          "type": "array"
+        },
+        "frame_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Frame Ids",
+          "type": "array"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "answer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Answer"
+        },
+        "answered_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Answered At"
+        }
+      },
+      "required": [
+        "id",
+        "asked_by",
+        "text"
+      ],
+      "title": "Question",
+      "type": "object"
+    },
+    "Room": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "level_id": {
+          "title": "Level Id",
+          "type": "string"
+        },
+        "discipline": {
+          "$ref": "#/$defs/Discipline",
+          "default": "architecture"
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "default": "observed"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "type_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Type Id"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "qa": {
+          "$ref": "#/$defs/QA"
+        },
+        "exports": {
+          "$ref": "#/$defs/ExportRefs"
+        },
+        "params": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Params",
+          "type": "object"
+        },
+        "category": {
+          "const": "room",
+          "default": "room",
+          "title": "Category",
+          "type": "string"
+        },
+        "boundary": {
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "minItems": 3,
+          "title": "Boundary",
+          "type": "array"
+        },
+        "number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Number"
+        }
+      },
+      "required": [
+        "id",
+        "level_id",
+        "boundary"
+      ],
+      "title": "Room",
+      "type": "object"
+    },
+    "Run": {
+      "description": "Linear MEP element: pipe, duct, conduit, cable tray.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "level_id": {
+          "title": "Level Id",
+          "type": "string"
+        },
+        "discipline": {
+          "$ref": "#/$defs/Discipline"
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "default": "observed"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "type_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Type Id"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "qa": {
+          "$ref": "#/$defs/QA"
+        },
+        "exports": {
+          "$ref": "#/$defs/ExportRefs"
+        },
+        "params": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Params",
+          "type": "object"
+        },
+        "category": {
+          "enum": [
+            "pipe",
+            "duct",
+            "conduit",
+            "cable_tray"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "path": {
+          "items": {
+            "maxItems": 3,
+            "minItems": 3,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "minItems": 2,
+          "title": "Path",
+          "type": "array"
+        },
+        "diameter": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Diameter"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Width"
+        },
+        "height": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Height"
+        },
+        "system_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "System Id"
+        },
+        "connects_to": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Connects To",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "level_id",
+        "discipline",
+        "category",
+        "path"
+      ],
+      "title": "Run",
+      "type": "object"
+    },
+    "Slab": {
+      "description": "Floor slab or ceiling. `kind` decides which.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "level_id": {
+          "title": "Level Id",
+          "type": "string"
+        },
+        "discipline": {
+          "$ref": "#/$defs/Discipline",
+          "default": "architecture"
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "default": "observed"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "type_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Type Id"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "qa": {
+          "$ref": "#/$defs/QA"
+        },
+        "exports": {
+          "$ref": "#/$defs/ExportRefs"
+        },
+        "params": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Params",
+          "type": "object"
+        },
+        "category": {
+          "const": "slab",
+          "default": "slab",
+          "title": "Category",
+          "type": "string"
+        },
+        "kind": {
+          "default": "floor",
+          "enum": [
+            "floor",
+            "ceiling",
+            "roof"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "boundary": {
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "minItems": 3,
+          "title": "Boundary",
+          "type": "array"
+        },
+        "thickness": {
+          "exclusiveMinimum": 0,
+          "title": "Thickness",
+          "type": "number"
+        },
+        "offset": {
+          "default": 0.0,
+          "title": "Offset",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "level_id",
+        "boundary",
+        "thickness"
+      ],
+      "title": "Slab",
+      "type": "object"
+    },
+    "Source": {
+      "enum": [
+        "observed",
+        "inferred",
+        "from_drawings",
+        "user"
+      ],
+      "title": "Source",
+      "type": "string"
+    },
+    "SourceFile": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "pointcloud",
+            "video360",
+            "images",
+            "drawing"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "device": {
+          "enum": [
+            "terrestrial_lidar",
+            "iphone_lidar",
+            "android_camera",
+            "camera_360",
+            "other"
+          ],
+          "title": "Device",
+          "type": "string"
+        },
+        "filename": {
+          "title": "Filename",
+          "type": "string"
+        },
+        "format": {
+          "title": "Format",
+          "type": "string"
+        },
+        "bytes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bytes"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "device",
+        "filename",
+        "format"
+      ],
+      "title": "SourceFile",
+      "type": "object"
+    },
+    "System": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "discipline": {
+          "$ref": "#/$defs/Discipline"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "default": "observed"
+        },
+        "panel_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Panel Id"
+        }
+      },
+      "required": [
+        "id",
+        "discipline",
+        "kind",
+        "name"
+      ],
+      "title": "System",
+      "type": "object"
+    },
+    "Wall": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "level_id": {
+          "title": "Level Id",
+          "type": "string"
+        },
+        "discipline": {
+          "$ref": "#/$defs/Discipline",
+          "default": "architecture"
+        },
+        "source": {
+          "$ref": "#/$defs/Source",
+          "default": "observed"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "type_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Type Id"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "qa": {
+          "$ref": "#/$defs/QA"
+        },
+        "exports": {
+          "$ref": "#/$defs/ExportRefs"
+        },
+        "params": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Params",
+          "type": "object"
+        },
+        "category": {
+          "const": "wall",
+          "default": "wall",
+          "title": "Category",
+          "type": "string"
+        },
+        "baseline": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            }
+          ],
+          "title": "Baseline",
+          "type": "array"
+        },
+        "thickness": {
+          "exclusiveMinimum": 0,
+          "title": "Thickness",
+          "type": "number"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "number"
+        },
+        "base_offset": {
+          "default": 0.0,
+          "title": "Base Offset",
+          "type": "number"
+        },
+        "exterior": {
+          "default": false,
+          "title": "Exterior",
+          "type": "boolean"
+        },
+        "joined_to": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Joined To",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "level_id",
+        "baseline",
+        "thickness",
+        "height"
+      ],
+      "title": "Wall",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "default": "0.1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "project": {
+      "$ref": "#/$defs/Project"
+    },
+    "levels": {
+      "items": {
+        "$ref": "#/$defs/Level"
+      },
+      "title": "Levels",
+      "type": "array"
+    },
+    "types": {
+      "items": {
+        "$ref": "#/$defs/ElementType"
+      },
+      "title": "Types",
+      "type": "array"
+    },
+    "systems": {
+      "items": {
+        "$ref": "#/$defs/System"
+      },
+      "title": "Systems",
+      "type": "array"
+    },
+    "elements": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "air_terminal": "#/$defs/Fixture",
+            "cable_tray": "#/$defs/Run",
+            "column": "#/$defs/Column",
+            "conduit": "#/$defs/Run",
+            "door": "#/$defs/Opening",
+            "duct": "#/$defs/Run",
+            "equipment": "#/$defs/Fixture",
+            "light_fixture": "#/$defs/Fixture",
+            "opening": "#/$defs/Opening",
+            "panel": "#/$defs/Fixture",
+            "pipe": "#/$defs/Run",
+            "plumbing_fixture": "#/$defs/Fixture",
+            "room": "#/$defs/Room",
+            "slab": "#/$defs/Slab",
+            "socket": "#/$defs/Fixture",
+            "sprinkler": "#/$defs/Fixture",
+            "switch": "#/$defs/Fixture",
+            "wall": "#/$defs/Wall",
+            "window": "#/$defs/Opening"
+          },
+          "propertyName": "category"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/Wall"
+          },
+          {
+            "$ref": "#/$defs/Slab"
+          },
+          {
+            "$ref": "#/$defs/Opening"
+          },
+          {
+            "$ref": "#/$defs/Column"
+          },
+          {
+            "$ref": "#/$defs/Room"
+          },
+          {
+            "$ref": "#/$defs/Fixture"
+          },
+          {
+            "$ref": "#/$defs/Run"
+          }
+        ]
+      },
+      "title": "Elements",
+      "type": "array"
+    },
+    "questions": {
+      "items": {
+        "$ref": "#/$defs/Question"
+      },
+      "title": "Questions",
+      "type": "array"
+    },
+    "history": {
+      "items": {
+        "$ref": "#/$defs/Edit"
+      },
+      "title": "History",
+      "type": "array"
+    }
+  },
+  "required": [
+    "project"
+  ],
+  "title": "BuildingGraph",
+  "type": "object"
+}
