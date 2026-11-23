@@ -50,7 +50,7 @@ python -m scanforge.cli path/to/scan.e57 --name "My office"   # writes .graph.js
 uvicorn scanforge.api:app --reload        # API on :8000, docs at /docs
 ```
 
-On the VPS: `cp .env.example .env`, add your Anthropic key, `docker compose up -d`.
+On the VPS: `cp .env.example .env`, add your Anthropic key (optional for the demo), then `SCANFORGE_PORT=32780 docker compose up -d --build`.
 
 ## Devices
 

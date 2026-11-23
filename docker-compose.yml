@@ -1,13 +1,16 @@
 # Runs on the VPS. The GPU segmentation worker is rented separately and added later.
+# Port: set SCANFORGE_PORT (default 8000) if 8000 is taken on the host.
+name: scanforge
 services:
   api:
     build: ./backend
-    ports: ["8000:8000"]
+    ports: ["${SCANFORGE_PORT:-8000}:8000"]
     environment:
       - SCANFORGE_DATA=/data
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
     volumes:
       - scanforge-data:/data
+    mem_limit: 3g          # keep big scans from starving other apps on the server
     restart: unless-stopped
 volumes:
   scanforge-data:
