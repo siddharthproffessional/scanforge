@@ -149,6 +149,7 @@ function resize() {
 }
 new ResizeObserver(resize).observe(host); resize();
 (function loop() { controls.update(); renderer.render(scene, camera); requestAnimationFrame(loop); })();
+window.__sf = { THREE, camera, controls, groups, renderer, scene };   // hook for tests and screen recording
 
 for (const [id, key] of [['tPoints', 'points'], ['tModel', 'model'], ['tCeil', 'ceil']]) {
   $(id).addEventListener('change', e => groups[key].visible = e.target.checked);
