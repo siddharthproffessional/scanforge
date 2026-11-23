@@ -58,4 +58,4 @@ Terrestrial scanner → E57. iPhone Pro → PLY/LAS/E57 from Polycam, 3D Scanner
 
 ## Live demo
 
-The API serves a demo page at `/`: run the sample scan or upload your own point cloud, watch the model rebuild over the scan in 3D, and download the IFC. Projects are deleted after 3 days (`SCANFORGE_KEEP_DAYS`).
+**http://187.127.143.33:32780/** (Hostinger VPS, Docker). The API serves a demo page at `/`: run the sample scan or upload your own point cloud, watch the model rebuild over the scan in 3D, and download the IFC. Projects are deleted after 3 days (`SCANFORGE_KEEP_DAYS`).
